@@ -49,6 +49,12 @@ export default function Login(){
         }
     }
 
+    function handleLogout() {
+        localStorage.removeItem('token');
+        setMessage('Logged out');
+        setProfile('');   // clear the displayed profile too
+    }
+
     return (
     <div>
       <h1>Login</h1>
@@ -67,7 +73,12 @@ export default function Login(){
         />
         <button type="submit">Log in</button>
       </form>
-      <button onClick={fetchProfile}>Who am I?</button>
+      <div>
+        <button onClick={fetchProfile}>Who am I?</button>
+      </div>
+      <div>
+        <button onClick={handleLogout}>Log out</button>
+      </div>
       <p>{profile}</p>
       <p>{message}</p>
     </div>
