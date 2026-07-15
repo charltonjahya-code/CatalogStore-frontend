@@ -7,6 +7,7 @@ export default function Login(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [profile, setProfile] = useState('');
 
     // function that runs when the form is submitted
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>){
@@ -32,6 +33,22 @@ export default function Login(){
         }
     }
 
+    async function fetchProfile() {
+        const token = localStorage.getItem('token');   // read the saved token
+
+        const res = await fetch('http://localhost:3001/me', {
+            headers: { Authorization: `Bearer ${token}` }  // attach it
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            setProfile(JSON.stringify(data.user));  // show who we are
+        } else {
+            setProfile('Not authorized');
+        }
+    }
+
     return (
     <div>
       <h1>Login</h1>
@@ -50,6 +67,8 @@ export default function Login(){
         />
         <button type="submit">Log in</button>
       </form>
+      <button onClick={fetchProfile}>Who am I?</button>
+      <p>{profile}</p>
       <p>{message}</p>
     </div>
   );
