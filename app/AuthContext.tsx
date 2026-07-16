@@ -16,11 +16,35 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any>(null);
 
-  // login: save token, set user
+  // helper: fetch the real user from /profile using a token
+  async function fetchUser(token: string) {
+    try {
+      const res = await fetch('http://localhost:3001/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);          // store the REAL user
+      } else {
+        setUser(null);          // token invalid → not logged in
+      }
+    } catch (error) {
+      setUser(null);
+    }
+  }
+
+  // on load: if there's a token, fetch the real user
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchUser(token);
+    }
+  }, []);
+
+  // login: save token, then fetch the real user
   function login(token: string) {
     localStorage.setItem('token', token);
-    // (we'll decode the token to get the user shortly — for now, mark logged in)
-    setUser({ loggedIn: true });
+    fetchUser(token);
   }
 
   // logout: clear token, clear user
