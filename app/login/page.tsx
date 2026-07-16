@@ -1,8 +1,10 @@
 'use client';
 
 import {useState} from 'react';
+import { useAuth } from '../AuthContext';
 
 export default function Login(){
+    const { user, login, logout } = useAuth();
     // state for the form inputs
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -23,7 +25,7 @@ export default function Login(){
             const data = await res.json();
 
             if (res.ok) {
-                localStorage.setItem('token', data.token); // save the token
+                login(data.token); // use the context login
                 setMessage('Login successful!');
             } else {
                 setMessage(data.error || 'Login failed');
@@ -50,7 +52,7 @@ export default function Login(){
     }
 
     function handleLogout() {
-        localStorage.removeItem('token');
+        logout();
         setMessage('Logged out');
         setProfile('');   // clear the displayed profile too
     }
@@ -81,6 +83,7 @@ export default function Login(){
       </div>
       <p>{profile}</p>
       <p>{message}</p>
+      <p>Auth state: {user ? 'logged in' : 'Logged out'}</p>
     </div>
   );
 }
