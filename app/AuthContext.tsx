@@ -5,6 +5,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 // 1. define the shape of what the context holds
 type AuthContextType = {
   user: any;
+  loading: boolean; 
   login: (token: string) => void;
   logout: () => void;
 };
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // 3. the Provider component — holds the state, broadcasts it
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   // helper: fetch the real user from /profile using a token
   async function fetchUser(token: string) {
@@ -30,6 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       setUser(null);
+    } finally {
+        setLoading(false); // <- done checking, whatever the outcome
     }
   }
 
@@ -38,6 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem('token');
     if (token) {
       fetchUser(token);
+    } else {
+        setLoading(false);
     }
   }, []);
 
@@ -54,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
