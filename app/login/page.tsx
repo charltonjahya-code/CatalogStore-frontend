@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '../AuthContext';
+import { login as loginRequest } from '../../lib/api/authApi';
 
 export default function Login() {
   const { login } = useAuth();   // only need login now
@@ -11,24 +12,12 @@ export default function Login() {
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-
     try {
-      const res = await fetch('http://localhost:3001/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        login(data.token);
-        setMessage('Login successful!');
-      } else {
-        setMessage(data.error || 'Login failed');
-      }
+      const data = await loginRequest(email, password);   // API call → gets { token }
+      login(data.token);                                   // context → saves token
+      setMessage('Login successful!');
     } catch (error) {
-      setMessage('Something went wrong');
+      setMessage(error instanceof Error ? error.message : 'Login failed');
     }
   }
 

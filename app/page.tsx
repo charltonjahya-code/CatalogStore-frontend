@@ -1,13 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-type Product = {
-  id: number;
-  name: string;
-  description: string;
-  base_price: number;
-};
+import { getProducts } from '../lib/api/productApi';
+import { Product } from '../types/product';
 
 export default function Home() {
   // 1. state to hold products (starts empty)
@@ -15,9 +10,7 @@ export default function Home() {
 
   // 2. fetch products once when the page loads
   useEffect(() => {
-    fetch('http://localhost:3001/products')
-      .then(res => res.json())
-      .then(data => setProducts(data));
+    getProducts().then(data => setProducts(data));
   }, []);
 
   // 3. display the products

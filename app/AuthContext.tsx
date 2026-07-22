@@ -1,10 +1,12 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getProfile } from '../lib/api/userApi';
+import { User } from '../types/user';
 
 // 1. define the shape of what the context holds
 type AuthContextType = {
-  user: any;
+  user: User | null;
   loading: boolean; 
   login: (token: string) => void;
   logout: () => void;
@@ -15,21 +17,14 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 // 3. the Provider component — holds the state, broadcasts it
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // helper: fetch the real user from /profile using a token
   async function fetchUser(token: string) {
     try {
-      const res = await fetch('http://localhost:3001/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);          // store the REAL user
-      } else {
-        setUser(null);          // token invalid → not logged in
-      }
+      const data = await getProfile(token);
+      setUser(data);
     } catch (error) {
       setUser(null);
     } finally {
